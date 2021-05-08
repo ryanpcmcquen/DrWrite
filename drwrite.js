@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                     li.parentNode.replaceChild(dolly, li);
 
                     const newUl = document.createElement("ul");
-                    li.appendChild(newUl);
+                    dolly.appendChild(newUl);
 
                     const response = await dbx.filesListFolder({
                         path: item.path_display,
