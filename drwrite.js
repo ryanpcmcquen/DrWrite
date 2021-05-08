@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         const dbx = new Dropbox.Dropbox({ clientId: CLIENT_ID });
         const authUrl = await dbx.auth.getAuthenticationUrl(
-            "http://localhost:8887"
+            window.location.origin
         );
         document.querySelector(".authlink").href = authUrl;
     }
