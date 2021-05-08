@@ -118,6 +118,10 @@ html {
     color: #f7f7f7;
 }
 
+hr {
+    margin: 1px;
+}
+
 .pre-auth-section,
 .authed-section {
     display: none;
