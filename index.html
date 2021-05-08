@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <base target="_blank" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" href="assets/codemirror.min.css" />
+
+        <link rel="stylesheet" href="assets/foldgutter.min.css" />
+
+        <link rel="stylesheet" media="all" href="drwrite.css" />
+
+        <script src="assets/codemirror.min.js"></script>
+
+        <script src="assets/simple.min.js"></script>
+        <script src="assets/markdown.min.js"></script>
+
+        <script src="assets/search.min.js"></script>
+        <script src="assets/searchcursor.min.js"></script>
+
+        <script src="assets/hardwrap.min.js"></script>
+
+        <script src="assets/foldcode.min.js"></script>
+        <script src="assets/foldgutter.min.js"></script>
+
+        <script src="assets/dist.js"></script>
+
+        <script src="assets/orgmode-mode.js"></script>
+        <script src="assets/orgmode-fold.js"></script>
+
+        <script src="drwrite.js"></script>
+    </head>
+
+    <body>
+        <div class="dropbox">
+            <button class="load-from-dropbox">Load from Dropbox</button>
+        </div>
+        <hr />
+
+        <div class="wrapper">
+            <textarea class="drwrite"></textarea>
+        </div>
+
+        <div class="info">
+            <div class="theme-chooser">
+                <label>
+                    <input type="radio" name="toggle" value="light" />
+                    <span>Light</span>
+                </label>
+                <label>
+                    <input type="radio" name="toggle" value="dark" />
+                    <span>Dark</span>
+                </label>
+            </div>
+        </div>
+    </body>
+</html>

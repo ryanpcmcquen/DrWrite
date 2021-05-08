@@ -1,0 +1,14 @@
+{
+  "name": "drwrite",
+  "version": "1.0.0",
+  "description": "An online Dropbox editor for Markdown, Org Mode, and good ol' plain text.",
+  "main": "drwrite.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ryan McQuen",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "dropbox": "^9.7.0"
+  }
+}
