@@ -8,5 +8,7 @@ curl https://cdn.jsdelivr.net/npm/codemirror@5/addon/wrap/hardwrap.min.js -o ass
 curl https://cdn.jsdelivr.net/npm/codemirror@5/lib/codemirror.min.css -o assets/codemirror.min.css
 curl https://cdn.jsdelivr.net/npm/codemirror@5/lib/codemirror.min.js -o assets/codemirror.min.js
 curl https://cdn.jsdelivr.net/npm/codemirror@5/mode/markdown/markdown.min.js -o assets/markdown.min.js
-curl https://cdn.jsdelivr.net/gh/mickael-kerjean/codemirror-orgmode/orgmode-fold.js -o assets/orgmode-fold.js
-curl https://cdn.jsdelivr.net/gh/mickael-kerjean/codemirror-orgmode/orgmode-mode.js -o assets/orgmode-mode.js
+curl https://cdn.jsdelivr.net/gh/mickael-kerjean/codemirror-orgmode/orgmode-fold.min.js -o assets/orgmode-fold.min.js
+curl https://cdn.jsdelivr.net/gh/mickael-kerjean/codemirror-orgmode/orgmode-mode.min.js -o assets/orgmode-mode.min.js
+curl https://cdn.jsdelivr.net/npm/dropbox@9/dist/Dropbox-sdk.min.js -o assets/Dropbox-sdk.min.js
+curl https://raw.githubusercontent.com/dropbox/dropbox-sdk-js/main/examples/javascript/utils.js -o assets/Dropbox-utils.js

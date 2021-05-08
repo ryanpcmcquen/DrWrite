@@ -117,3 +117,12 @@ html {
     background-color: #404040;
     color: #f7f7f7;
 }
+
+.pre-auth-section,
+.authed-section {
+    display: none;
+}
+
+.files li {
+    cursor: pointer;
+}
