@@ -96,5 +96,5 @@ hr {
     content: "📁: ";
 }
 .files li.file::before {
-    content: "🗎: ";
+    /* Find a nice file icon! */
 }
