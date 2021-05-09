@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             accessToken: getAccessTokenFromUrl(),
         });
         console.log(dbx);
+        debugger;
         window.localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify(
@@ -150,17 +151,22 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         });
         editor.setSize("100%", "100%");
 
-        let wait;
+        let waitToReformat;
+        let waitToSave;
         let changing = false;
         editor.on("change", (cm, change) => {
-            clearTimeout(wait);
-            wait = setTimeout(async () => {
+            clearTimeout(waitToReformat);
+            clearTimeout(waitToSave);
+            waitToReformat = setTimeout(() => {
                 changing = true;
                 cm.wrapParagraphsInRange(
                     change.from,
                     CodeMirror.changeEnd(change)
                 );
                 changing = false;
+            }, 200);
+
+            waitToSave = setTimeout(async () => {
                 if (filePath) {
                     const saveResult = await save(
                         filePath,
