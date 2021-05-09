@@ -1,27 +1,28 @@
 document.addEventListener("DOMContentLoaded", async (event) => {
     "use strict";
 
-    // Load preferences from local storage:
-    const result = window.localStorage.getItem("DrWritePreferences");
-    if (result) {
-        const DrWritePreferences = JSON.parse(result);
-
-        if (DrWritePreferences.windowHash) {
-            window.location.hash = DrWritePreferences.windowHash;
-        }
-    }
-
     let editor;
     let workingNote;
-    let ignoreTextChange = false;
-    let initialLoad = true;
+    let filePath;
+    let dbx;
 
-    const save = () => {};
+    const save = async (path, contents) => {
+        return await dbx.filesUpload({
+            path: path,
+            mode: "overwrite",
+            mute: true,
+            contents: contents,
+        });
+    };
 
     const CLIENT_ID = "w7lnr8lari3bnpm";
 
     const getAccessTokenFromUrl = () => {
         return utils.parseQueryString(window.location.hash).access_token;
+    };
+
+    const showPageSection = (elementSelector) => {
+        document.querySelector(elementSelector).style.display = "block";
     };
 
     // If the user was just redirected from authenticating, the urls
@@ -32,55 +33,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const filesContainer = document.querySelector(".files");
 
-    const showPageSection = (elementSelector) => {
-        document.querySelector(elementSelector).style.display = "block";
-    };
-
-    const loadEditor = () => {
-        editor = CodeMirror.fromTextArea(document.querySelector(".drwrite"), {
-            autofocus: true,
-            foldGutter: {
-                minFoldSize: 1,
-            },
-            foldOptions: {
-                widget: " ...",
-            },
-            gutters: ["CodeMirror-foldgutter"],
-            indentUnit: 4,
-            lineNumbers: false,
-            lineWrapping: true
-        });
-        editor.setSize("100%", "100%");
-
-        let wait;
-        let changing = false;
-        editor.on("change", (cm, change) => {
-            if (ignoreTextChange) {
-                return;
-            }
-            clearTimeout(wait);
-            wait = setTimeout(() => {
-                changing = true;
-                cm.wrapParagraphsInRange(
-                    change.from,
-                    CodeMirror.changeEnd(change)
-                );
-                changing = false;
-            }, 200);
-            save();
-        });
-    };
-
-    loadEditor();
-
-    const getExtension = (path) => {
-        return path.match(/\.(.*)$/);
-    };
-
-    const renderItems = (items, dbx, parent = filesContainer) => {
+    const renderItems = (items, parent = filesContainer) => {
         items.forEach((item) => {
             const li = document.createElement("li");
             li.textContent = item.name;
+            li.classList.add(item[".tag"]);
             parent.appendChild(li);
 
             li.addEventListener("click", async () => {
@@ -95,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                     const response = await dbx.filesListFolder({
                         path: item.path_display,
                     });
-                    renderItems(response.result.entries, dbx, newUl);
+                    renderItems(response.result.entries, newUl);
                 } else if (item[".tag"] === "file") {
                     const response = await dbx.filesDownload({
                         path: item.path_display,
@@ -117,6 +74,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                     }
 
                     editor.getDoc().setValue(text);
+                    filePath = item.path_display;
+                    filePathNode.textContent = `Editing: ${filePath}`;
                 }
             });
         });
@@ -125,10 +84,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     if (isAuthenticated()) {
         showPageSection(".authed-section");
 
-        const dbx = new Dropbox.Dropbox({
+        dbx = new Dropbox.Dropbox({
             accessToken: getAccessTokenFromUrl(),
         });
-
+        console.log(dbx);
         window.localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify(
@@ -145,14 +104,76 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         );
 
         const response = await dbx.filesListFolder({ path: "" });
-        renderItems(response.result.entries, dbx);
+        renderItems(response.result.entries);
     } else {
         showPageSection(".pre-auth-section");
 
-        const dbx = new Dropbox.Dropbox({ clientId: CLIENT_ID });
+        dbx = new Dropbox.Dropbox({
+            clientId: CLIENT_ID,
+            tokenAccessType: "offline",
+        });
+
         const authUrl = await dbx.auth.getAuthenticationUrl(
             `${window.location.origin}${window.location.pathname}`
         );
         document.querySelector(".authlink").href = authUrl;
     }
+
+    // Load preferences from local storage:
+    const result = window.localStorage.getItem("DrWritePreferences");
+    if (result) {
+        const DrWritePreferences = JSON.parse(result);
+        console.log(DrWritePreferences);
+        if (DrWritePreferences.windowHash) {
+            if (dbx) {
+                console.log(await dbx.auth.checkAndRefreshAccessToken());
+            }
+            window.location.hash = DrWritePreferences.windowHash;
+        }
+    }
+
+    const filePathNode = document.querySelector(".info .file-path");
+
+    const loadEditor = () => {
+        editor = CodeMirror.fromTextArea(document.querySelector(".drwrite"), {
+            autofocus: true,
+            foldGutter: {
+                minFoldSize: 1,
+            },
+            foldOptions: {
+                widget: " ...",
+            },
+            gutters: ["CodeMirror-foldgutter"],
+            indentUnit: 4,
+            lineNumbers: false,
+            lineWrapping: true,
+        });
+        editor.setSize("100%", "100%");
+
+        let wait;
+        let changing = false;
+        editor.on("change", (cm, change) => {
+            clearTimeout(wait);
+            wait = setTimeout(async () => {
+                changing = true;
+                cm.wrapParagraphsInRange(
+                    change.from,
+                    CodeMirror.changeEnd(change)
+                );
+                changing = false;
+                if (filePath) {
+                    const saveResult = await save(
+                        filePath,
+                        editor.getDoc().getValue()
+                    );
+                }
+            }, 2000);
+        });
+    };
+
+    loadEditor();
+
+    const getExtension = (path) => {
+        return path.match(/\.(.*)$/);
+    };
 });

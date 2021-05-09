@@ -89,4 +89,12 @@ hr {
 
 .files li {
     cursor: pointer;
+    list-style-type: none;
+}
+
+.files li.folder::before {
+    content: "📁: ";
+}
+.files li.file::before {
+    content: "🗎: ";
 }
