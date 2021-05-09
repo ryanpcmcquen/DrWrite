@@ -5,13 +5,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const result = window.localStorage.getItem("DrWritePreferences");
     if (result) {
         const DrWritePreferences = JSON.parse(result);
-        const defaultTheme = DrWritePreferences
-            ? DrWritePreferences.themeFilter
-            : "light";
-        const currentTheme = document.querySelector(`[value=${defaultTheme}]`);
-        if (currentTheme) {
-            currentTheme.click();
-        }
 
         if (DrWritePreferences.windowHash) {
             window.location.hash = DrWritePreferences.windowHash;
@@ -55,10 +48,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             gutters: ["CodeMirror-foldgutter"],
             indentUnit: 4,
             lineNumbers: false,
-            lineWrapping: true,
-            // TODO:
-            // Detect file from extension.
-            // mode: "orgmode",
+            lineWrapping: true
         });
         editor.setSize("100%", "100%");
 
@@ -165,24 +155,4 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         );
         document.querySelector(".authlink").href = authUrl;
     }
-
-    // Change themes:
-    const themeFilters = {
-        light: "",
-        dark: "invert(1) hue-rotate(180deg)",
-    };
-    const themeChooser = document.querySelector(".theme-chooser");
-    themeChooser.addEventListener("click", (event) => {
-        if (/INPUT/.test(event.target.tagName)) {
-            editor.getWrapperElement().style.filter =
-                themeFilters[event.target.value];
-
-            window.localStorage.setItem(
-                "DrWritePreferences",
-                JSON.stringify({
-                    themeFilter: event.target.value,
-                })
-            );
-        }
-    });
 });
