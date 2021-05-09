@@ -78,46 +78,6 @@ html {
     overflow: hidden;
 }
 
-.theme-chooser {
-    float: right;
-    padding-top: 1px;
-}
-
-.theme-chooser label {
-    float: left;
-    width: 40px;
-    background-color: #efefef;
-    border-radius: 4px;
-    border: 1px solid #d0d0d0;
-    overflow: auto;
-}
-
-.theme-chooser label:nth-child(1) {
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 0;
-}
-
-.theme-chooser label:nth-child(2) {
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-}
-
-.theme-chooser span {
-    text-align: center;
-    font-size: 10px;
-    padding: 4px 0;
-    display: block;
-}
-
-.theme-chooser input {
-    display: none;
-}
-
-.theme-chooser input:checked + span {
-    background-color: #404040;
-    color: #f7f7f7;
-}
-
 hr {
     margin: 1px;
 }
