@@ -67,7 +67,7 @@ html {
 
 .info {
     white-space: nowrap;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     background: #eeeeee;
     padding: 5px;
@@ -78,6 +78,13 @@ html {
     overflow: hidden;
 }
 
+.info .create-new-file {
+    float: left;
+}
+
+.info .file-path {
+    float: right;
+}
 hr {
     margin: 1px;
 }

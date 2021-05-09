@@ -22,7 +22,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     };
 
     const showPageSection = (elementSelector) => {
-        document.querySelector(elementSelector).style.display = "block";
+        Array.from(document.querySelectorAll(elementSelector)).forEach(
+            (element) => {
+                element.style.display = "block";
+            }
+        );
     };
 
     // If the user was just redirected from authenticating, the urls
@@ -33,8 +37,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const filesContainer = document.querySelector(".files");
 
-    const renderItems = (items, parent = filesContainer) => {
+    const renderItems = (items, parent = filesContainer, clear = false) => {
+        if (clear) {
+            parent.innerHTML = "";
+        }
         items.forEach((item) => {
+            console.log(item);
             const li = document.createElement("li");
             li.textContent = item.name;
             li.classList.add(item[".tag"]);
@@ -88,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             accessToken: getAccessTokenFromUrl(),
         });
         console.log(dbx);
-        debugger;
+        // debugger;
         window.localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify(
@@ -106,6 +114,21 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         const response = await dbx.filesListFolder({ path: "" });
         renderItems(response.result.entries);
+
+        const createNewFile = document.querySelector(".create-new-file");
+        createNewFile.addEventListener("click", async () => {
+            const path = window.prompt(
+                "What do you want to call this new file?"
+            );
+
+            await dbx.filesUpload({
+                path: `/${path}`,
+                mute: true,
+            });
+
+            const response = await dbx.filesListFolder({ path: "" });
+            renderItems(response.result.entries, filesContainer, true);
+        });
     } else {
         showPageSection(".pre-auth-section");
 
@@ -124,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const result = window.localStorage.getItem("DrWritePreferences");
     if (result) {
         const DrWritePreferences = JSON.parse(result);
-        console.log(DrWritePreferences);
+
         if (DrWritePreferences.windowHash) {
             if (dbx) {
                 console.log(await dbx.auth.checkAndRefreshAccessToken());
