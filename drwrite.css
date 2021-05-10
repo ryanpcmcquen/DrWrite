@@ -1,6 +1,5 @@
 body,
 html {
-    font-family: sans-serif;
     height: 100%;
     margin: 0;
 }
@@ -21,7 +20,7 @@ html {
     padding: 0;
     background-color: transparent;
 
-    /* Theme chooser adjustments: */
+    /* Info bar adjustments: */
     position: absolute;
     top: 0;
     right: 0;
