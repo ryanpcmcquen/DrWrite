@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                         editor.getDoc().getValue()
                     );
                 }
-            }, 2000);
+            }, 1000);
         });
     };
 
