@@ -102,6 +102,15 @@ hr {
 .files li.folder::before {
     content: "📁: ";
 }
+
 .files li.file::before {
     /* Find a nice file icon! */
+}
+
+.toggle-file-list {
+    float: right;
+}
+
+.hidden {
+    display: none;
 }

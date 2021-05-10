@@ -43,8 +43,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         }
         items.forEach((item) => {
             const li = document.createElement("li");
-            li.textContent = item.name;
+            const button = document.createElement("button");
+            button.textContent = item.name;
             li.classList.add(item[".tag"]);
+            li.appendChild(button);
             parent.appendChild(li);
 
             li.addEventListener("click", async () => {
@@ -134,6 +136,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
             const response = await dbx.filesListFolder({ path: "" });
             renderItems(response.result.entries, filesContainer, true);
+        });
+
+        const toggleFileList = document.querySelector(".toggle-file-list");
+        toggleFileList.addEventListener("click", () => {
+            filesContainer.classList.toggle("hidden");
         });
     } else {
         showPageSection(".pre-auth-section");
