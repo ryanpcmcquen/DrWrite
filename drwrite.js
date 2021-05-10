@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             parent.innerHTML = "";
         }
         items.forEach((item) => {
-            console.log(item);
             const li = document.createElement("li");
             li.textContent = item.name;
             li.classList.add(item[".tag"]);
@@ -89,27 +88,19 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         });
     };
 
+    const pureUrl = `${window.location.origin}${window.location.pathname}`;
+
     if (isAuthenticated()) {
         showPageSection(".authed-section");
 
         dbx = new Dropbox.Dropbox({
             accessToken: getAccessTokenFromUrl(),
         });
-        console.log(dbx);
-        // debugger;
         window.localStorage.setItem(
             "DrWritePreferences",
-            JSON.stringify(
-                Object.assign(
-                    {},
-                    JSON.parse(
-                        window.localStorage.getItem("DrWritePreferences")
-                    ),
-                    {
-                        windowHash: window.location.hash,
-                    }
-                )
-            )
+            JSON.stringify({
+                windowHash: window.location.hash,
+            })
         );
 
         try {
@@ -117,8 +108,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             renderItems(response.result.entries);
         } catch (err) {
             console.error("Authentication is failing: ", err);
-            // Need to authenticate again:
-            console.log(await dbx.auth.checkAndRefreshAccessToken());
+            window.localStorage.setItem("DrWritePreferences", "{}");
+            window.location.hash = "";
+            window.location.href = pureUrl;
+            window.location.reload();
         }
 
         const createNewFile = document.querySelector(".create-new-file");
@@ -143,9 +136,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             tokenAccessType: "offline",
         });
 
-        const authUrl = await dbx.auth.getAuthenticationUrl(
-            `${window.location.origin}${window.location.pathname}`
-        );
+        const authUrl = await dbx.auth.getAuthenticationUrl(pureUrl);
         document.querySelector(".authlink").href = authUrl;
     }
 
@@ -156,6 +147,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         if (DrWritePreferences.windowHash) {
             if (dbx) {
+                console.log(dbx);
                 console.log(await dbx.auth.checkAndRefreshAccessToken());
             }
             window.location.hash = DrWritePreferences.windowHash;
