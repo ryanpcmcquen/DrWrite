@@ -112,7 +112,13 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             )
         );
 
-        const response = await dbx.filesListFolder({ path: "" });
+        try {
+            const response = await dbx.filesListFolder({ path: "" });
+        } catch (err) {
+            console.error("Authentication is failing: ", err);
+            // Need to authenticate again:
+            console.log(await dbx.auth.checkAndRefreshAccessToken());
+        }
         renderItems(response.result.entries);
 
         const createNewFile = document.querySelector(".create-new-file");
