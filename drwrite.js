@@ -109,8 +109,15 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         } catch (err) {
             console.error("Authentication is failing: ", err);
             window.localStorage.setItem("DrWritePreferences", "{}");
-            window.location.href = pureUrl;
+            // window.location.href = pureUrl;
             window.location.hash = "";
+
+            dbx = new Dropbox.Dropbox({
+                clientId: CLIENT_ID,
+                tokenAccessType: "offline",
+            });
+
+            window.location.href = await dbx.auth.getAuthenticationUrl(pureUrl);
             window.location.reload();
         }
 
