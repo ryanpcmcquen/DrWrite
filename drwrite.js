@@ -109,8 +109,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         } catch (err) {
             console.error("Authentication is failing: ", err);
             window.localStorage.setItem("DrWritePreferences", "{}");
-            window.location.hash = "";
             window.location.href = pureUrl;
+            window.location.hash = "";
             window.location.reload();
         }
 
