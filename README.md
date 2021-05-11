@@ -1,5 +1,7 @@
 # DrWrite
 
+![DrWrite_logo](./DrWrite_logo.png)
+
 An online editor for your Dropbox files, with support for Markdown, Org Mode, and good ol' plain text.
 
 -   This app is fully client side. It attempts to help usability by storing the access token in localStorage and reading that.
