@@ -111,7 +111,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         } catch (err) {
             console.error("Authentication is failing: ", err);
             window.localStorage.setItem("DrWritePreferences", "{}");
-            // window.location.href = pureUrl;
             window.location.hash = "";
 
             dbx = new Dropbox.Dropbox({
@@ -161,7 +160,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         if (DrWritePreferences.windowHash) {
             if (dbx) {
-                console.log(dbx);
                 console.log(await dbx.auth.checkAndRefreshAccessToken());
             }
             window.location.hash = DrWritePreferences.windowHash;
