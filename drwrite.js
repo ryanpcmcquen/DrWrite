@@ -124,9 +124,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             window.localStorage.setItem("DrWritePreferences", "{}");
             window.location.hash = "";
 
-            dbx = new Dropbox.Dropbox({
+            dbx = new Dropbox.DropboxAuth({
                 clientId: CLIENT_ID,
-                tokenAccessType: "offline",
             });
 
             window.location.href = await dbx.auth.getAuthenticationUrl(
@@ -157,9 +156,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     } else {
         showPageSection(".pre-auth-section");
 
-        dbx = new Dropbox.Dropbox({
+        dbx = new Dropbox.DropboxAuth({
             clientId: CLIENT_ID,
-            tokenAccessType: "offline",
         });
 
         const authUrl = await dbx.auth.getAuthenticationUrl(...authOptions);
