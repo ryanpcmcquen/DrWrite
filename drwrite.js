@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const getAccessTokenFromUrl = () => {
         return utils.parseQueryString(window.location.hash).access_token;
     };
+    const getCodeFromUrl = () => {
+        return utils.parseQueryString(window.location.search).code;
+    };
 
     const showPageSection = (elementSelector) => {
         Array.from(document.querySelectorAll(elementSelector)).forEach(
@@ -32,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     // If the user was just redirected from authenticating, the urls
     // hash will contain the access token.
     const isAuthenticated = () => {
-        return Boolean(getAccessTokenFromUrl());
+        return Boolean(getCodeFromUrl());
     };
 
     const filesContainer = document.querySelector(".files");
@@ -132,7 +135,16 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             window.location.href = await dbxAuth.getAuthenticationUrl(
                 ...authOptions
             );
+            window.localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
             window.location.reload();
+
+            await dbxAuth.setCodeVerifier(
+                window.localStorage.getItem("codeVerifier")
+            );
+            window.localStorage.setItem(
+                "DrWritePreferences",
+                await dbxAuth.getAccessTokenFromCode(pureUrl, getCodeFromUrl())
+            );
         }
 
         const createNewFile = document.querySelector(".create-new-file");
@@ -163,10 +175,21 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
         document.querySelector(".authlink").href = authUrl;
+
+        window.localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
+
+        await dbxAuth.setCodeVerifier(
+            window.localStorage.getItem("codeVerifier")
+        );
+        window.localStorage.setItem(
+            "DrWritePreferences",
+            await dbxAuth.getAccessTokenFromCode(pureUrl, getCodeFromUrl())
+        );
     }
 
     // Load preferences from local storage:
     const result = window.localStorage.getItem("DrWritePreferences");
+    console.log(result);
     if (result) {
         const DrWritePreferences = JSON.parse(result);
 
