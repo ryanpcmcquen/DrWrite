@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     //     includeGrantedScopes = 'none',
     //     usePKCE = false
     // )
-    const authOptions = [pureUrl, "excellence", "token", "offline"];
+    const authOptions = [pureUrl, "excellence", "code", "offline"];
 
     if (isAuthenticated()) {
         showPageSection(".authed-section");
