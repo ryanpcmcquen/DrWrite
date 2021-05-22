@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     "use strict";
 
     let editor;
-    let workingNote;
     let filePath;
     let dbx;
 
@@ -91,6 +90,17 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     };
 
     const pureUrl = `${window.location.origin}${window.location.pathname}`;
+    // For use in:
+    // getAuthenticationUrl(
+    //     redirectUri,
+    //     state,
+    //     authType = 'token',
+    //     tokenAccessType = null,
+    //     scope = null,
+    //     includeGrantedScopes = 'none',
+    //     usePKCE = false
+    // )
+    const authOptions = [pureUrl, "excellence", "token", "offline"];
 
     if (isAuthenticated()) {
         showPageSection(".authed-section");
@@ -98,6 +108,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         dbx = new Dropbox.Dropbox({
             accessToken: getAccessTokenFromUrl(),
         });
+
         window.localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify({
@@ -118,7 +129,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 tokenAccessType: "offline",
             });
 
-            window.location.href = await dbx.auth.getAuthenticationUrl(pureUrl, 'excellence', 'token', 'offline');
+            window.location.href = await dbx.auth.getAuthenticationUrl(
+                ...authOptions
+            );
             window.location.reload();
         }
 
@@ -149,7 +162,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             tokenAccessType: "offline",
         });
 
-        const authUrl = await dbx.auth.getAuthenticationUrl(pureUrl, 'excellence', 'token', 'offline');
+        const authUrl = await dbx.auth.getAuthenticationUrl(...authOptions);
         document.querySelector(".authlink").href = authUrl;
     }
 
