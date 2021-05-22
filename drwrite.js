@@ -104,7 +104,41 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     //     includeGrantedScopes = 'none',
     //     usePKCE = false
     // )
-    const authOptions = [pureUrl, null, "code", "offline"];
+    const authOptions = [
+        pureUrl,
+        undefined,
+        "code",
+        "offline",
+        undefined,
+        undefined,
+        true,
+    ];
+
+    const doAuth = async () => {
+        dbxAuth = new Dropbox.DropboxAuth({
+            clientId: CLIENT_ID,
+        });
+
+        window.location.href = await dbxAuth.getAuthenticationUrl(
+            ...authOptions
+        );
+        localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
+        // window.location.reload();
+
+        const accessToken = await dbxAuth.getAccessTokenFromCode(
+            pureUrl,
+            getCodeFromUrl()
+        );
+        localStorage.setItem(
+            "DrWritePreferences",
+            JSON.stringify({
+                codeVerifier: dbxAuth.codeVerifier,
+                accessToken: accessToken,
+            })
+        );
+
+        await dbxAuth.setCodeVerifier(dbxAuth.codeVerifier);
+    };
 
     if (isAuthenticated()) {
         showPageSection(".authed-section");
@@ -113,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             accessToken: getAccessTokenFromUrl(),
         });
 
-        window.localStorage.setItem(
+        localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify({
                 windowHash: window.location.hash,
@@ -125,26 +159,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             renderItems(response.result.entries);
         } catch (err) {
             console.error("Authentication is failing: ", err);
-            window.localStorage.setItem("DrWritePreferences", "{}");
+            localStorage.setItem("DrWritePreferences", "{}");
             window.location.hash = "";
-
-            dbxAuth = new Dropbox.DropboxAuth({
-                clientId: CLIENT_ID,
-            });
-
-            window.location.href = await dbxAuth.getAuthenticationUrl(
-                ...authOptions
-            );
-            window.localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
-            window.location.reload();
-
-            await dbxAuth.setCodeVerifier(
-                window.localStorage.getItem("codeVerifier")
-            );
-            window.localStorage.setItem(
-                "DrWritePreferences",
-                await dbxAuth.getAccessTokenFromCode(pureUrl, getCodeFromUrl())
-            );
+            await doAuth();
         }
 
         const createNewFile = document.querySelector(".create-new-file");
@@ -168,27 +185,27 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         });
     } else {
         showPageSection(".pre-auth-section");
+        await doAuth();
+        // dbxAuth = new Dropbox.DropboxAuth({
+        //     clientId: CLIENT_ID,
+        // });
 
-        dbxAuth = new Dropbox.DropboxAuth({
-            clientId: CLIENT_ID,
-        });
+        // const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
+        // document.querySelector(".authlink").href = authUrl;
 
-        const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
-        document.querySelector(".authlink").href = authUrl;
+        // localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
 
-        window.localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
-
-        await dbxAuth.setCodeVerifier(
-            window.localStorage.getItem("codeVerifier")
-        );
-        window.localStorage.setItem(
-            "DrWritePreferences",
-            await dbxAuth.getAccessTokenFromCode(pureUrl, getCodeFromUrl())
-        );
+        // await dbxAuth.setCodeVerifier(
+        //     localStorage.getItem("codeVerifier")
+        // );
+        // localStorage.setItem(
+        //     "DrWritePreferences",
+        //     await dbxAuth.getAccessTokenFromCode(pureUrl, getCodeFromUrl())
+        // );
     }
 
     // Load preferences from local storage:
-    const result = window.localStorage.getItem("DrWritePreferences");
+    const result = localStorage.getItem("DrWritePreferences");
     console.log(result);
     if (result) {
         const DrWritePreferences = JSON.parse(result);
