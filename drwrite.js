@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     let editor;
     let filePath;
     let dbx;
+    let dbxAuth;
 
     const save = async (path, contents) => {
         return await dbx.filesUpload({
@@ -124,11 +125,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             window.localStorage.setItem("DrWritePreferences", "{}");
             window.location.hash = "";
 
-            dbx = new Dropbox.DropboxAuth({
+            dbxAuth = new Dropbox.DropboxAuth({
                 clientId: CLIENT_ID,
             });
 
-            window.location.href = await dbx.auth.getAuthenticationUrl(
+            window.location.href = await dbxAuth.getAuthenticationUrl(
                 ...authOptions
             );
             window.location.reload();
@@ -156,11 +157,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     } else {
         showPageSection(".pre-auth-section");
 
-        dbx = new Dropbox.DropboxAuth({
+        dbxAuth = new Dropbox.DropboxAuth({
             clientId: CLIENT_ID,
         });
 
-        const authUrl = await dbx.auth.getAuthenticationUrl(...authOptions);
+        const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
         document.querySelector(".authlink").href = authUrl;
     }
 
@@ -171,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         if (DrWritePreferences.windowHash) {
             if (dbx) {
-                console.log(await dbx.auth.checkAndRefreshAccessToken());
+                console.log(await dbxAuth.checkAndRefreshAccessToken());
             }
             window.location.hash = DrWritePreferences.windowHash;
         }
