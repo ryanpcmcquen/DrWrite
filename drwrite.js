@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 tokenAccessType: "offline",
             });
 
-            window.location.href = await dbx.auth.getAuthenticationUrl(pureUrl);
+            window.location.href = await dbx.auth.getAuthenticationUrl(pureUrl, 'excellence', 'token', 'offline');
             window.location.reload();
         }
 
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             tokenAccessType: "offline",
         });
 
-        const authUrl = await dbx.auth.getAuthenticationUrl(pureUrl);
+        const authUrl = await dbx.auth.getAuthenticationUrl(pureUrl, 'excellence', 'token', 'offline');
         document.querySelector(".authlink").href = authUrl;
     }
 
