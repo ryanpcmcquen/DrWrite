@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         showPageSection(".authed-section");
 
         dbx = new Dropbox.Dropbox({
-            accessToken: getAccessTokenFromUrl(),
+            auth: dbxAuth,
         });
 
         localStorage.setItem(
