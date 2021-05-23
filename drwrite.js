@@ -128,15 +128,15 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
             })
         );
 
-        showPageSection(".pre-auth-section");
-
-        const authLink = document.querySelector(".authlink");
-        authLink.style.cursor = "pointer";
-        authLink.style.textDecoration = "underline";
-
-        authLink.addEventListener("click", () => {
-            window.location.href = authUrl;
-        });
+        window.location.href = authUrl;
+        // showPageSection(".pre-auth-section");
+        // const authLink = document.querySelector(".authlink");
+        // authLink.style.cursor = "pointer";
+        // authLink.style.textDecoration = "underline";
+        //
+        // authLink.addEventListener("click", () => {
+        // window.location.href = authUrl;
+        // });
     };
 
     const tryAgain = async (err = "") => {
@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         });
     } else {
         showPageSection(".pre-auth-section");
-        await tryAgain("In pre authorization flow ...");
+        await doAuth();
     }
 
     // Load preferences from local storage:
