@@ -181,10 +181,12 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         localStorage.setItem(
             preferencesKey,
             JSON.stringify({
-                access_token: accessTokenResponse.result.access_token,
+                access_token: accessToken,
                 codeVerifier: sessionStorage.getItem("codeVerifier"),
                 dbxAuth: dbxAuth,
-                refresh_token: accessTokenResponse.result.refresh_token,
+                refresh_token:
+                    accessTokenResponse?.result?.refresh_token ||
+                    DrWritePreferences?.refresh_token,
             })
         );
 
