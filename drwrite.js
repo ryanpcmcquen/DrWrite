@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     };
 
     const CLIENT_ID = "w7lnr8lari3bnpm";
+    const preferencesKey = "DrWritePreferences";
 
     const getCodeFromUrl = () => {
         return utils.parseQueryString(window.location.search).code;
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         sessionStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
 
         localStorage.setItem(
-            "DrWritePreferences",
+            preferencesKey,
             JSON.stringify({
                 codeVerifier: dbxAuth.codeVerifier,
                 dbxAuth: dbxAuth,
@@ -132,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     if (hasRedirectedFromAuth()) {
         showPageSection(".authed-section");
-        dbxAuth;
+
         dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
         const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
             pureUrl,
@@ -143,14 +144,15 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
-            access_token: accessTokenResponse.result.access_token,
-            refresh_token: accessTokenResponse.result.refresh_token,
         });
 
         localStorage.setItem(
-            "DrWritePreferences",
+            preferencesKey,
             JSON.stringify({
+                access_token: accessTokenResponse.result.access_token,
+                codeVerifier: sessionStorage.getItem("codeVerifier"),
                 dbxAuth: dbxAuth,
+                refresh_token: accessTokenResponse.result.refresh_token,
             })
         );
 
@@ -159,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             renderItems(response.result.entries);
         } catch (err) {
             console.error("Authentication is failing: ", err);
-            localStorage.setItem("DrWritePreferences", "{}");
+            localStorage.setItem(preferencesKey, "{}");
             await doAuth();
         }
 
@@ -188,7 +190,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     }
 
     // Load preferences from local storage:
-    const result = localStorage.getItem("DrWritePreferences");
+    const result = localStorage.getItem(preferencesKey);
 
     if (result) {
         const DrWritePreferences = JSON.parse(result);
@@ -222,23 +224,31 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         editor.on("change", (cm, change) => {
             clearTimeout(waitToReformat);
             clearTimeout(waitToSave);
-            waitToReformat = setTimeout(() => {
-                changing = true;
-                cm.wrapParagraphsInRange(
-                    change.from,
-                    CodeMirror.changeEnd(change)
-                );
-                changing = false;
-            }, 200);
+            if (!changing) {
+                waitToReformat = setTimeout(() => {
+                    changing = true;
 
-            waitToSave = setTimeout(async () => {
-                if (filePath) {
-                    const saveResult = await save(
-                        filePath,
-                        editor.getDoc().getValue()
+                    cm.wrapParagraphsInRange(
+                        change.from,
+                        CodeMirror.changeEnd(change)
                     );
-                }
-            }, 1000);
+
+                    changing = false;
+                }, 200);
+
+                waitToSave = setTimeout(async () => {
+                    changing = true;
+
+                    if (filePath) {
+                        const saveResult = await save(
+                            filePath,
+                            editor.getDoc().getValue()
+                        );
+                    }
+
+                    changing = false;
+                }, 1000);
+            }
         });
     };
 
