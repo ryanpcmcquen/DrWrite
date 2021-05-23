@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async (event) => {
+document.addEventListener("DOMContentLoaded", async (_event) => {
     "use strict";
 
     let editor;
@@ -131,6 +131,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         document.querySelector(".authlink").href = authUrl;
     };
 
+    const tryAgain = async () => {
+        console.warn("Authentication is failing: ", err);
+        localStorage.setItem(preferencesKey, "{}");
+        await doAuth();
+    };
+
     if (hasRedirectedFromAuth()) {
         showPageSection(".authed-section");
 
@@ -153,13 +159,20 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                     getCodeFromUrl()
                 );
             } catch (err) {
-                console.error("Authentication is failing: ", err);
-                localStorage.setItem(preferencesKey, "{}");
-                await doAuth();
+                await tryAgain();
             }
         }
 
-        dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
+        let accessToken;
+        if (accessTokenResponse?.result?.access_token) {
+            accessToken = accessTokenResponse.result.access_token;
+        } else if (DrWritePreferences?.access_token) {
+            accessToken = DrWritePreferences.access_token;
+        } else {
+            await tryAgain();
+        }
+
+        dbxAuth.setAccessToken(accessToken);
 
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
@@ -179,9 +192,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             const response = await dbx.filesListFolder({ path: "" });
             renderItems(response.result.entries);
         } catch (err) {
-            console.error("Authentication is failing: ", err);
-            localStorage.setItem(preferencesKey, "{}");
-            await doAuth();
+            await tryAgain();
         }
 
         const createNewFile = document.querySelector(".create-new-file");
@@ -205,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         });
     } else {
         showPageSection(".pre-auth-section");
-        await doAuth();
+        await tryAgain();
     }
 
     // Load preferences from local storage:
@@ -259,10 +270,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                     changing = true;
 
                     if (filePath) {
-                        const saveResult = await save(
-                            filePath,
-                            editor.getDoc().getValue()
-                        );
+                        await save(filePath, editor.getDoc().getValue());
                     }
 
                     changing = false;
