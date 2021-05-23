@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             })
         );
 
-        window.location.href = authUrl;
+        document.querySelector(".authlink").href = authUrl;
     };
 
     if (hasRedirectedFromAuth()) {
