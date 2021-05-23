@@ -17,11 +17,16 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const CLIENT_ID = "w7lnr8lari3bnpm";
 
-    const getAccessTokenFromUrl = () => {
-        return utils.parseQueryString(window.location.hash).access_token;
-    };
+    // const getAccessTokenFromUrl = () => {
+    //     return utils.parseQueryString(window.location.hash).access_token;
+    // };
+
     const getCodeFromUrl = () => {
         return utils.parseQueryString(window.location.search).code;
+    };
+
+    const hasRedirectedFromAuth = () => {
+        return Boolean(getCodeFromUrl());
     };
 
     const showPageSection = (elementSelector) => {
@@ -119,40 +124,43 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             clientId: CLIENT_ID,
         });
 
-        window.location.href = await dbxAuth.getAuthenticationUrl(
-            ...authOptions
-        );
+        // window.location.href =
+        const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
+        debugger;
         localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
         // window.location.reload();
-
-        const accessToken = await dbxAuth.getAccessTokenFromCode(
+        console.log(getCodeFromUrl());
+        const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
             pureUrl,
             getCodeFromUrl()
         );
+        debugger;
         localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify({
                 codeVerifier: dbxAuth.codeVerifier,
-                accessToken: accessToken,
+                accessToken: accessTokenResponse.result.access_token,
             })
         );
 
         await dbxAuth.setCodeVerifier(dbxAuth.codeVerifier);
+        await dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
+        debugger;
     };
 
-    if (isAuthenticated()) {
+    if (hasRedirectedFromAuth) {
         showPageSection(".authed-section");
-
+        debugger;
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
         });
 
-        localStorage.setItem(
-            "DrWritePreferences",
-            JSON.stringify({
-                windowHash: window.location.hash,
-            })
-        );
+        // localStorage.setItem(
+        //     "DrWritePreferences",
+        //     JSON.stringify({
+        //         windowHash: window.location.hash,
+        //     })
+        // );
 
         try {
             const response = await dbx.filesListFolder({ path: "" });
@@ -160,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         } catch (err) {
             console.error("Authentication is failing: ", err);
             localStorage.setItem("DrWritePreferences", "{}");
-            window.location.hash = "";
+            // window.location.hash = "";
             await doAuth();
         }
 
@@ -186,22 +194,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     } else {
         showPageSection(".pre-auth-section");
         await doAuth();
-        // dbxAuth = new Dropbox.DropboxAuth({
-        //     clientId: CLIENT_ID,
-        // });
-
-        // const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
-        // document.querySelector(".authlink").href = authUrl;
-
-        // localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
-
-        // await dbxAuth.setCodeVerifier(
-        //     localStorage.getItem("codeVerifier")
-        // );
-        // localStorage.setItem(
-        //     "DrWritePreferences",
-        //     await dbxAuth.getAccessTokenFromCode(pureUrl, getCodeFromUrl())
-        // );
     }
 
     // Load preferences from local storage:
@@ -214,7 +206,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             if (dbx) {
                 console.log(await dbxAuth.checkAndRefreshAccessToken());
             }
-            window.location.hash = DrWritePreferences.windowHash;
+            // window.location.hash = DrWritePreferences.windowHash;
         }
     }
 
