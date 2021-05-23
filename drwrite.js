@@ -128,7 +128,11 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
             })
         );
 
-        document.querySelector(".authlink").href = authUrl;
+        const authLink = document.querySelector(".authlink");
+        authLink.style.textDecoration = "underline";
+        authLink.addEventListener("click", () => {
+            window.location.href = authUrl;
+        });
     };
 
     const tryAgain = async (err = "") => {
