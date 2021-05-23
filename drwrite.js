@@ -17,14 +17,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const CLIENT_ID = "w7lnr8lari3bnpm";
 
-    // const getAccessTokenFromUrl = () => {
-    //     return utils.parseQueryString(window.location.hash).access_token;
-    // };
-
     const getCodeFromUrl = () => {
         return utils.parseQueryString(window.location.search).code;
     };
 
+    // If the user was just redirected from authenticating, the urls
+    // hash will contain the access token.
     const hasRedirectedFromAuth = () => {
         return Boolean(getCodeFromUrl());
     };
@@ -35,12 +33,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 element.style.display = "block";
             }
         );
-    };
-
-    // If the user was just redirected from authenticating, the urls
-    // hash will contain the access token.
-    const isAuthenticated = () => {
-        return Boolean(getCodeFromUrl());
     };
 
     const filesContainer = document.querySelector(".files");
@@ -119,38 +111,28 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         true,
     ];
 
-    const doAuth = async () => {
-        dbxAuth = new Dropbox.DropboxAuth({
-            clientId: CLIENT_ID,
-        });
+    dbxAuth = new Dropbox.DropboxAuth({
+        clientId: CLIENT_ID,
+    });
 
+    const doAuth = async () => {
+        const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
         sessionStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
-        window.location.href = await dbxAuth.getAuthenticationUrl(
-            ...authOptions
-        );
-        // debugger;
-        // // window.location.reload();
-        // console.log(getCodeFromUrl());
-        // const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
-        //     pureUrl,
-        //     getCodeFromUrl()
-        // );
-        debugger;
+
         localStorage.setItem(
             "DrWritePreferences",
             JSON.stringify({
                 codeVerifier: dbxAuth.codeVerifier,
-                accessToken: accessTokenResponse.result.access_token,
+                dbxAuth: dbxAuth,
             })
         );
 
-        // await dbxAuth.setCodeVerifier(dbxAuth.codeVerifier);
-        // await dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
-        debugger;
+        window.location.href = authUrl;
     };
 
     if (hasRedirectedFromAuth()) {
         showPageSection(".authed-section");
+        dbxAuth;
         dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
         const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
             pureUrl,
@@ -158,17 +140,17 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         );
 
         dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
-
+        debugger;
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
         });
 
-        // localStorage.setItem(
-        //     "DrWritePreferences",
-        //     JSON.stringify({
-        //         windowHash: window.location.hash,
-        //     })
-        // );
+        localStorage.setItem(
+            "DrWritePreferences",
+            JSON.stringify({
+                dbxAuth: dbxAuth,
+            })
+        );
 
         try {
             const response = await dbx.filesListFolder({ path: "" });
@@ -176,7 +158,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         } catch (err) {
             console.error("Authentication is failing: ", err);
             localStorage.setItem("DrWritePreferences", "{}");
-            // window.location.hash = "";
             await doAuth();
         }
 
@@ -210,12 +191,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     if (result) {
         const DrWritePreferences = JSON.parse(result);
 
-        // if (DrWritePreferences.windowHash) {
-        if (dbx) {
-            // console.log(await dbxAuth.checkAndRefreshAccessToken());
+        if (DrWritePreferences && dbx) {
+            await dbxAuth.checkAndRefreshAccessToken();
         }
-        // window.location.hash = DrWritePreferences.windowHash;
-        // }
     }
 
     const filePathNode = document.querySelector(".info .file-path");
