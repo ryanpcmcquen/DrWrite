@@ -135,10 +135,18 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         showPageSection(".authed-section");
 
         dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
-        const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
-            pureUrl,
-            getCodeFromUrl()
-        );
+
+        let accessTokenResponse;
+        try {
+            accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
+                pureUrl,
+                getCodeFromUrl()
+            );
+        } catch (err) {
+            console.error("Authentication is failing: ", err);
+            localStorage.setItem(preferencesKey, "{}");
+            await doAuth();
+        }
 
         dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
 
@@ -159,10 +167,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         try {
             const response = await dbx.filesListFolder({ path: "" });
             renderItems(response.result.entries);
-        } catch (err) {
-            console.error("Authentication is failing: ", err);
-            localStorage.setItem(preferencesKey, "{}");
-            await doAuth();
         }
 
         const createNewFile = document.querySelector(".create-new-file");
