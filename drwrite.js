@@ -124,16 +124,17 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             clientId: CLIENT_ID,
         });
 
-        // window.location.href =
-        const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
-        debugger;
-        localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
-        // window.location.reload();
-        console.log(getCodeFromUrl());
-        const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
-            pureUrl,
-            getCodeFromUrl()
+        sessionStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
+        window.location.href = await dbxAuth.getAuthenticationUrl(
+            ...authOptions
         );
+        // debugger;
+        // // window.location.reload();
+        // console.log(getCodeFromUrl());
+        // const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
+        //     pureUrl,
+        //     getCodeFromUrl()
+        // );
         debugger;
         localStorage.setItem(
             "DrWritePreferences",
@@ -143,14 +144,21 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             })
         );
 
-        await dbxAuth.setCodeVerifier(dbxAuth.codeVerifier);
-        await dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
+        // await dbxAuth.setCodeVerifier(dbxAuth.codeVerifier);
+        // await dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
         debugger;
     };
 
-    if (hasRedirectedFromAuth) {
+    if (hasRedirectedFromAuth()) {
         showPageSection(".authed-section");
-        debugger;
+        dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
+        const accessTokenResponse = awaitdbxAuth.getAccessTokenFromCode(
+            pureUrl,
+            getCodeFromUrl()
+        );
+
+        dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
+
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
         });
@@ -202,12 +210,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     if (result) {
         const DrWritePreferences = JSON.parse(result);
 
-        if (DrWritePreferences.windowHash) {
-            if (dbx) {
-                console.log(await dbxAuth.checkAndRefreshAccessToken());
-            }
-            // window.location.hash = DrWritePreferences.windowHash;
+        // if (DrWritePreferences.windowHash) {
+        if (dbx) {
+            // console.log(await dbxAuth.checkAndRefreshAccessToken());
         }
+        // window.location.hash = DrWritePreferences.windowHash;
+        // }
     }
 
     const filePathNode = document.querySelector(".info .file-path");
