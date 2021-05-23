@@ -137,15 +137,26 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
 
         let accessTokenResponse;
-        try {
-            accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
-                pureUrl,
-                getCodeFromUrl()
-            );
-        } catch (err) {
-            console.error("Authentication is failing: ", err);
-            localStorage.setItem(preferencesKey, "{}");
-            await doAuth();
+        let DrWritePreferences = JSON.parse(
+            localStorage.getItem(preferencesKey)
+        );
+        if (DrWritePreferences?.dbxAuth) {
+            try {
+                dbx = new Dropbox.Dropbox({
+                    auth: DrWritePreferences.dbxAuth,
+                });
+            } catch (ignore) {}
+        } else {
+            try {
+                accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
+                    pureUrl,
+                    getCodeFromUrl()
+                );
+            } catch (err) {
+                console.error("Authentication is failing: ", err);
+                localStorage.setItem(preferencesKey, "{}");
+                await doAuth();
+            }
         }
 
         dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
