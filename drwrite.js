@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         document.querySelector(".authlink").href = authUrl;
     };
 
-    const tryAgain = async () => {
+    const tryAgain = async (err = "") => {
         console.warn("Authentication is failing: ", err);
         localStorage.setItem(preferencesKey, "{}");
         await doAuth();
@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
                     getCodeFromUrl()
                 );
             } catch (err) {
-                await tryAgain();
+                await tryAgain(err);
             }
         }
 
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         } else if (DrWritePreferences?.access_token) {
             accessToken = DrWritePreferences.access_token;
         } else {
-            await tryAgain();
+            await tryAgain("No access token.");
         }
 
         dbxAuth.setAccessToken(accessToken);
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
             const response = await dbx.filesListFolder({ path: "" });
             renderItems(response.result.entries);
         } catch (err) {
-            await tryAgain();
+            await tryAgain(err);
         }
 
         const createNewFile = document.querySelector(".create-new-file");
@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         });
     } else {
         showPageSection(".pre-auth-section");
-        await tryAgain();
+        await tryAgain("In pre authorization flow ...");
     }
 
     // Load preferences from local storage:
