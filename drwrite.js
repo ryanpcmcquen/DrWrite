@@ -140,9 +140,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         );
 
         dbxAuth.setAccessToken(accessTokenResponse.result.access_token);
-        debugger;
+
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
+            access_token: accessTokenResponse.result.access_token,
+            refresh_token: accessTokenResponse.result.refresh_token,
         });
 
         localStorage.setItem(
@@ -187,7 +189,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     // Load preferences from local storage:
     const result = localStorage.getItem("DrWritePreferences");
-    console.log(result);
+
     if (result) {
         const DrWritePreferences = JSON.parse(result);
 
