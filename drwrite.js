@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     if (hasRedirectedFromAuth()) {
         showPageSection(".authed-section");
         dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
-        const accessTokenResponse = awaitdbxAuth.getAccessTokenFromCode(
+        const accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
             pureUrl,
             getCodeFromUrl()
         );
