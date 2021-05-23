@@ -129,7 +129,9 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         );
 
         const authLink = document.querySelector(".authlink");
+        authLink.style.cursor = "pointer";
         authLink.style.textDecoration = "underline";
+
         authLink.addEventListener("click", () => {
             window.location.href = authUrl;
         });
