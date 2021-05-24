@@ -28,20 +28,20 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         return Boolean(getCodeFromUrl());
     };
 
-    const showPageSection = (elementSelector) => {
+    const modifyPageSectionDisplay = (elementSelector, displayProp) => {
         Array.from(document.querySelectorAll(elementSelector)).forEach(
             (element) => {
-                element.style.display = "block";
+                element.style.display = displayProp;
             }
         );
     };
 
+    const showPageSection = (elementSelector) => {
+        modifyPageSectionDisplay(elementSelector, "block");
+    };
+
     const hidePageSection = (elementSelector) => {
-        Array.from(document.querySelectorAll(elementSelector)).forEach(
-            (element) => {
-                element.style.display = "none";
-            }
-        );
+        modifyPageSectionDisplay(elementSelector, "none");
     };
 
     const filesContainer = document.querySelector(".files");
