@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
     };
 
     const CLIENT_ID = "w7lnr8lari3bnpm";
-    // const preferencesKey = "DrWritePreferences";
 
     const getCodeFromUrl = () => {
         return utils.parseQueryString(window.location.search).code;
@@ -127,30 +126,15 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
     const doAuth = async () => {
         const authUrl = await dbxAuth.getAuthenticationUrl(...authOptions);
         sessionStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
+        localStorage.setItem("codeVerifier", dbxAuth.codeVerifier);
 
-        // localStorage.setItem(
-        //     preferencesKey,
-        //     JSON.stringify({
-        //         codeVerifier: dbxAuth.codeVerifier,
-        //         dbxAuth: dbxAuth,
-        //     })
-        // );
-
-        // window.location.href = authUrl;
         hidePageSection(".authed-section");
         showPageSection(".pre-auth-section");
-        const authLink = document.querySelector(".authlink");
-        authLink.style.cursor = "pointer";
-        authLink.style.textDecoration = "underline";
-
-        authLink.addEventListener("click", () => {
-            window.location.href = authUrl;
-        });
+        window.location.href = authUrl;
     };
 
     const tryAgain = async (err = "") => {
         console.warn("Authentication is failing: ", err);
-        // localStorage.setItem(preferencesKey, "{}");
         await doAuth();
     };
 
@@ -158,19 +142,13 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         hidePageSection(".pre-auth-section");
         showPageSection(".authed-section");
 
-        dbxAuth.setCodeVerifier(sessionStorage.getItem("codeVerifier"));
+        dbxAuth.setCodeVerifier(
+            sessionStorage.getItem("codeVerifier") ||
+                localStorage.getItem("codeVerifier")
+        );
 
         let accessTokenResponse;
-        // let DrWritePreferences = JSON.parse(
-        // localStorage.getItem(preferencesKey)
-        // );
-        // if (DrWritePreferences?.dbxAuth) {
-        //     try {
-        //         dbx = new Dropbox.Dropbox({
-        //             auth: DrWritePreferences.dbxAuth,
-        //         });
-        //     } catch (ignore) {}
-        // } else {
+
         try {
             accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
                 pureUrl,
@@ -179,13 +157,10 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         } catch (err) {
             await tryAgain(err);
         }
-        // }
 
         let accessToken;
         if (accessTokenResponse?.result?.access_token) {
             accessToken = accessTokenResponse.result.access_token;
-            // } else if (DrWritePreferences?.access_token) {
-            // accessToken = DrWritePreferences.access_token;
         } else {
             await tryAgain("No access token.");
         }
@@ -195,18 +170,6 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
         });
-
-        // localStorage.setItem(
-        //     preferencesKey,
-        //     JSON.stringify({
-        //         access_token: accessToken,
-        //         codeVerifier: sessionStorage.getItem("codeVerifier"),
-        //         dbxAuth: dbxAuth,
-        //         refresh_token:
-        //             accessTokenResponse?.result?.refresh_token ||
-        //             DrWritePreferences?.refresh_token,
-        //     })
-        // );
 
         try {
             const response = await dbx.filesListFolder({ path: "" });
@@ -239,17 +202,6 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         showPageSection(".pre-auth-section");
         await doAuth();
     }
-
-    // Load preferences from local storage:
-    // const result = localStorage.getItem(preferencesKey);
-
-    // if (result) {
-    // const DrWritePreferences = JSON.parse(result);
-
-    // if (DrWritePreferences && dbx) {
-    // await dbxAuth.checkAndRefreshAccessToken();
-    // }
-    // }
 
     const filePathNode = document.querySelector(".info .file-path");
 
