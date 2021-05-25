@@ -138,7 +138,25 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         await doAuth();
     };
 
-    if (hasRedirectedFromAuth()) {
+    const storedAccessTokenResponse = JSON.parse(
+        localStorage.getItem("dropboxAccessTokenResponse")
+    );
+
+    if (storedAccessTokenResponse?.refresh_token) {
+        hidePageSection(".pre-auth-section");
+        showPageSection(".authed-section");
+
+        dbxAuth = new Dropbox.DropboxAuth({
+            clientId: CLIENT_ID,
+            accessToken: storedAccessTokenResponse.access_token,
+            refreshToken: storedAccessTokenResponse.refresh_token,
+        });
+        await dbxAuth.checkAndRefreshAccessToken();
+
+        dbx = new Dropbox.Dropbox({
+            auth: dbxAuth,
+        });
+    } else if (hasRedirectedFromAuth()) {
         hidePageSection(".pre-auth-section");
         showPageSection(".authed-section");
 
@@ -153,6 +171,10 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
             accessTokenResponse = await dbxAuth.getAccessTokenFromCode(
                 pureUrl,
                 getCodeFromUrl()
+            );
+            localStorage.setItem(
+                "dropboxAccessTokenResponse",
+                JSON.stringify(accessTokenResponse?.result)
             );
         } catch (err) {
             await tryAgain(err);
@@ -170,38 +192,36 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         dbx = new Dropbox.Dropbox({
             auth: dbxAuth,
         });
-
-        try {
-            const response = await dbx.filesListFolder({ path: "" });
-            renderItems(response.result.entries);
-        } catch (err) {
-            await tryAgain(err);
-        }
-
-        const createNewFile = document.querySelector(".create-new-file");
-        createNewFile.addEventListener("click", async () => {
-            const path = window.prompt(
-                "What do you want to call this new file?"
-            );
-
-            await dbx.filesUpload({
-                path: `/${path}`,
-                mute: true,
-            });
-
-            const response = await dbx.filesListFolder({ path: "" });
-            renderItems(response.result.entries, filesContainer, true);
-        });
-
-        const toggleFileList = document.querySelector(".toggle-file-list");
-        toggleFileList.addEventListener("click", () => {
-            filesContainer.classList.toggle("hidden");
-        });
     } else {
         hidePageSection(".authed-section");
         showPageSection(".pre-auth-section");
         await doAuth();
     }
+
+    try {
+        const response = await dbx.filesListFolder({ path: "" });
+        renderItems(response.result.entries);
+    } catch (err) {
+        await tryAgain(err);
+    }
+
+    const createNewFile = document.querySelector(".create-new-file");
+    createNewFile.addEventListener("click", async () => {
+        const path = window.prompt("What do you want to call this new file?");
+
+        await dbx.filesUpload({
+            path: `/${path}`,
+            mute: true,
+        });
+
+        const response = await dbx.filesListFolder({ path: "" });
+        renderItems(response.result.entries, filesContainer, true);
+    });
+
+    const toggleFileList = document.querySelector(".toggle-file-list");
+    toggleFileList.addEventListener("click", () => {
+        filesContainer.classList.toggle("hidden");
+    });
 
     const filePathNode = document.querySelector(".info .file-path");
 
