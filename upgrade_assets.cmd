@@ -10,5 +10,5 @@ curl https://cdn.jsdelivr.net/npm/codemirror@5/lib/codemirror.js -o assets/codem
 curl https://cdn.jsdelivr.net/npm/codemirror@5/mode/markdown/markdown.js -o assets/markdown.js
 curl https://cdn.jsdelivr.net/gh/mickael-kerjean/codemirror-orgmode/orgmode-fold.js -o assets/orgmode-fold.js
 curl https://cdn.jsdelivr.net/gh/mickael-kerjean/codemirror-orgmode/orgmode-mode.js -o assets/orgmode-mode.js
-curl https://cdn.jsdelivr.net/npm/dropbox@9/dist/Dropbox-sdk.js -o assets/Dropbox-sdk.js
+curl https://cdn.jsdelivr.net/npm/dropbox@10/dist/Dropbox-sdk.js -o assets/Dropbox-sdk.js
 curl https://raw.githubusercontent.com/dropbox/dropbox-sdk-js/main/examples/javascript/utils.js -o assets/Dropbox-utils.js
