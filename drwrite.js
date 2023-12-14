@@ -241,23 +241,23 @@ document.addEventListener("DOMContentLoaded", async (_event) => {
         });
         editor.setSize("100%", "100%");
 
-        let waitToReformat;
+        // let waitToReformat;
         let waitToSave;
         let changing = false;
         editor.on("change", (cm, change) => {
-            clearTimeout(waitToReformat);
+            // clearTimeout(waitToReformat);
             clearTimeout(waitToSave);
             if (!changing) {
-                waitToReformat = setTimeout(() => {
-                    changing = true;
+                // waitToReformat = setTimeout(() => {
+                //     changing = true;
 
-                    cm.wrapParagraphsInRange(
-                        change.from,
-                        CodeMirror.changeEnd(change)
-                    );
+                //     cm.wrapParagraphsInRange(
+                //         change.from,
+                //         CodeMirror.changeEnd(change)
+                //     );
 
-                    changing = false;
-                }, 200);
+                //     changing = false;
+                // }, 200);
 
                 waitToSave = setTimeout(async () => {
                     changing = true;
